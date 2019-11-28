@@ -4,6 +4,9 @@
 section .text
     global main
 
+; TODO: - Save boot drive into variable at the start
+;       - Add header information describing filesystem
+
 main:
     ; reset segment registers to 0
     cli
@@ -29,8 +32,8 @@ main:
     int 0x13
     pop ax
 
-    ; read disk
-    mov al, 2    ; no. sectors to read
+    ; read disk    
+    mov al, 10    ; no. sectors to read
     mov cl, 2    ; start sector pointer
     ; mov dl, 0x80 ; 0x80 = hdd, 0x00 = floppy (iso on usb emulates a floppy)
     call read_disk
