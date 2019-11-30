@@ -1,9 +1,5 @@
-bootloader:main.asm printf.asm printh.asm read_disk.asm testA20.asm enableA20.asm lm_check.asm gdt.asm
-	nasm -fbin main.asm -o bootloader.bin
-	cp bootloader.bin ../../build/bootloader.bin
+bootloader.bin:main.asm printf.asm printh.asm read_disk.asm testA20.asm enableA20.asm lm_check.asm gdt.asm
+	nasm -fbin main.asm -o ../../build/bootloader.bin
 
 clean:
 	rm bootloader.bin
-
-run:
-	qemu-system-x86_64 -drive file=./bootloader.bin,format=raw,index=0,media=disk

@@ -33,7 +33,7 @@ main:
     pop ax
 
     ; read disk    
-    mov al, 10    ; no. sectors to read
+    mov al, 20    ; no. sectors to read
     mov cl, 2    ; start sector pointer
     ; mov dl, 0x80 ; 0x80 = hdd, 0x00 = floppy (iso on usb emulates a floppy)
     call read_disk
@@ -43,9 +43,6 @@ main:
 
     ; jump to asm stored in second sector
     call second_sector
-    
-    ; force to hang
-    jmp $ 
 
     ; include files
     %include "./printf.asm"
@@ -70,6 +67,11 @@ dw 0xaa55
 
 
 second_sector:
+    ; Hide cursor
+    mov ah, 0x01
+    mov cx, 0x2607
+    int 0x10
+
     mov si, STR_LOADED
     call printf
 
@@ -143,6 +145,7 @@ STR_LM_COMPAT: db "LM Pass", 0x0a, 0x0d, 0
 STR_NO_LM: db "No LM", 0x0a, 0x0d, 0
 
 [bits 64]
+
 LongMode:
     cli ; disable interupts as we don't have IDT table
 
@@ -154,21 +157,4 @@ LongMode:
     mov ecx, 500
     rep stosq
 
-
-    ; print out 'WSN OS Successfully Booted!'
-    mov rax, 0x1f201f4e1f531f57
-    mov [VID_MEM], rax
-    mov rax, 0x1f421f201f531f4f
-    mov [VID_MEM + 8], rax
-    mov rax, 0x1f651f741f6f1f6f
-    mov [VID_MEM + 16], rax
-    mov rax, 0x1f751f531f201f64
-    mov [VID_MEM + 24], rax
-    mov rax, 0x1f731f651f631f63
-    mov [VID_MEM + 32], rax
-    mov rax, 0x1f6c1f751f661f73
-    mov [VID_MEM + 40], rax
-    mov rax, 0x1f201f211f791f6c
-    mov [VID_MEM + 48], rax
-
-    hlt
+    ; Do not hang here as kernel will follow
