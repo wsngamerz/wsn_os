@@ -1,5 +1,5 @@
-kernel.o: kernel.cpp
-	x86_64-elf-g++ -c kernel.cpp -o ../../build/kernel.o -O2 -Wall -Wextra -fno-exceptions -fno-rtti -ffreestanding
+kernel.o: kernel.c
+	x86_64-elf-gcc -c kernel.c -o ../../build/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 kernel_entry.o: kernel_entry.asm
 	nasm kernel_entry.asm -f elf64 -o ../../build/kernel_entry.o

@@ -23,6 +23,9 @@ main:
         cld
     sti
 
+    ; save bootdive value for later
+    mov [BOOT_DRIVE], dl
+
     mov si, STR_INIT
     call printf
     
@@ -35,7 +38,7 @@ main:
     ; read disk    
     mov al, 20    ; no. sectors to read
     mov cl, 2    ; start sector pointer
-    ; mov dl, 0x80 ; 0x80 = hdd, 0x00 = floppy (iso on usb emulates a floppy)
+    mov dl, [BOOT_DRIVE]
     call read_disk
 
     ; enable A20
@@ -51,11 +54,12 @@ main:
     %include "./testA20.asm"
     %include "./enableA20.asm"
 
+    BOOT_DRIVE: db 0
+
     STR_INIT: db "Loading...", 0x0a, 0x0d, 0
     STR_A20_LOAD: db "A20 Pass", 0x0a, 0x0d, 0
     STR_A20_ERROR: db "A20 Err", 0x0a, 0x0d, 0
     STR_DISK_ERROR: db "Disk Err", 0x0a, 0x0d, 0
-
 
 ; padding and magic number for boot sector
 times 510-($-$$) db 0
