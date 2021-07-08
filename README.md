@@ -1,4 +1,7 @@
 # wsn_os
+
 Hopefully an extremly basic opperating system rather than just a shell!
 
-followed https://github.com/theMike97/OS_Development alongside the accompanying video series (until it just stopped) to create bootloader and https://wiki.osdev.org/Main_Page was also a very helpful resource
+bootloader and kernel will be written in rust and booted using uefi rather than legacy boot
+
+NOTE: Check [Here]("https://rust-lang.github.io/rustup-components-history/x86_64-pc-windows-msvc.html") before updating the rust & cargo toolchains
