@@ -71,31 +71,40 @@ def build_command():
     build_bootloader_command()
     build_kernel_command()
 
-
-def build_bootloader_command():
-    """Build the bootloader"""
-    print("Build wsnOS Bootloader")
-
-    cmd = ["cargo", "+nightly", "build",
-           "-Z", "build-std",
-           "--target", BOOTLOADER_TARGET,
-           "--package", "bootloader"]
-    sp.run(cmd, cwd=BOOTLOADER_DIR).check_returncode()
-
-    # Create build folder
+    # Create build folders
     boot_dir = BUILD_DIR / "EFI" / "BOOT"
     boot_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy the build EFI application to the build directory
-    built_file = BOOTLOADER_CARGO_BUILD_DIR / "bootloader.efi"
-    output_file = boot_dir / "BootX64.efi"
-    shutil.copy2(built_file, output_file)
+    kernel_dir = BUILD_DIR / "EFI" / "WSNOS"
+    kernel_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy the bootloader EFI application to the build directory
+    bootloader_build = BOOTLOADER_CARGO_BUILD_DIR / "bootloader.efi"
+    bootloader_output = boot_dir / "BootX64.efi"
+    shutil.copy2(bootloader_build, bootloader_output)
 
     # Write a startup script to make UEFI Shell load into
     # the application automatically
     startup_file = open(BUILD_DIR / "startup.nsh", "w")
     startup_file.write("\EFI\BOOT\BOOTX64.EFI")
     startup_file.close()
+
+    # Copy the kernel accross into the correct folders
+    kernel_build = KERNEL_CARGO_BUILD_DIR / "kernel"
+    kernel_output = kernel_dir / "kernel.bin"
+    shutil.copy2(kernel_build, kernel_output)
+
+
+def build_bootloader_command():
+    """Build the bootloader"""
+    print("Build wsnOS Bootloader")
+
+    cmd = ["cargo", "+nightly", "build",
+           "-Z", "build-std=core,compiler_builtins,alloc",
+           "-Z", "build-std-features=compiler-builtins-mem",
+           "--target", BOOTLOADER_TARGET,
+           "--package", "bootloader"]
+    sp.run(cmd, cwd=BOOTLOADER_DIR).check_returncode()
     return
 
 
@@ -105,9 +114,11 @@ def build_kernel_command():
 
     cmd = ["cargo", "+nightly", "build",
            "-Z", "build-std=core,compiler_builtins",
+           "-Z", "build-std-features=compiler-builtins-mem",
            "--target", f"{KERNEL_TARGET}.json",
            "--package", "kernel"]
     sp.run(cmd, cwd=KERNEL_DIR).check_returncode()
+    return
 
 
 def run_command():
@@ -153,7 +164,7 @@ def run_command():
         "-serial", "stdio",
 
         # Setup monitor
-        "-monitor", "vc:1024x768",
+        "-monitor", "vc:1280x720",
     ]
 
     sp.run([QEMU] + qemu_flags).check_returncode()
