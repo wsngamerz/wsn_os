@@ -26,7 +26,7 @@ fn efi_main(handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     display_uefi_info(&system_table);
     let gop_data = gop::setup_gop(&system_table);
-    load::read_file("EFI/WSNOS/Kernel.bin", &handle, &system_table);
+    load::read_kernel(&handle, &system_table);
 
     loop {
         // clear interrupts and halt to stop 100% cpu usage
