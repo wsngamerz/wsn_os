@@ -100,9 +100,6 @@ def build_bootloader_command():
     print("Build wsnOS Bootloader")
 
     cmd = ["cargo", "+nightly", "build",
-           "-Z", "build-std=core,compiler_builtins,alloc",
-           "-Z", "build-std-features=compiler-builtins-mem",
-           "--target", BOOTLOADER_TARGET,
            "--package", "bootloader"]
     sp.run(cmd, cwd=BOOTLOADER_DIR).check_returncode()
     return
@@ -113,9 +110,6 @@ def build_kernel_command():
     print("Build wsnOS Kernel")
 
     cmd = ["cargo", "+nightly", "build",
-           "-Z", "build-std=core,compiler_builtins",
-           "-Z", "build-std-features=compiler-builtins-mem",
-           "--target", f"{KERNEL_TARGET}.json",
            "--package", "kernel"]
     sp.run(cmd, cwd=KERNEL_DIR).check_returncode()
     return

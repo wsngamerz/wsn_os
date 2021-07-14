@@ -7,6 +7,7 @@ use uefi::proto::console::gop::GraphicsOutput;
 // a 4k res
 const RESIZE_1280_720: bool = true;
 
+#[derive(Debug)]
 pub struct GopData {
     framebuffer_pointer: *mut u8,
     width: usize,
@@ -26,7 +27,7 @@ pub fn setup_gop(st: &SystemTable<Boot>) -> GopData {
     let mut final_mode = gop.modes().next().expect("GOP Mode Err").unwrap();
 
     // try to calculate the largest resolution we can support and get a copy of that mode
-    for (index, gop_mode) in gop.modes().enumerate() {
+    for (_index, gop_mode) in gop.modes().enumerate() {
         let mode = gop_mode.expect("GOP mode Panic");
         let mode_info = mode.info();
         let mode_resolution = mode_info.resolution();
@@ -35,12 +36,13 @@ pub fn setup_gop(st: &SystemTable<Boot>) -> GopData {
         if RESIZE_1280_720 {
             if mode_resolution.0 == 1280 && mode_resolution.1 == 720 {
                 final_mode = mode;
+                break;
             }
         } else if res >= largest_size {
             final_mode = mode;
         }
 
-        info!(">> #{} // [{}] // {:?}", index, res, mode_resolution);
+        // info!(">> #{} // [{}] // {:?}", _index, res, mode_resolution);
     }
 
     // found the largest mode so set it
@@ -48,8 +50,8 @@ pub fn setup_gop(st: &SystemTable<Boot>) -> GopData {
     gop.set_mode(&final_mode)
         .expect_success("Failed to change GOP mode");
 
-    info!("Gop Mode: {:#?}", gop.current_mode_info());
-    info!("Framebuffer: {:#p}", gop.frame_buffer().as_mut_ptr());
+    info!("Gop Mode: {:?}", gop.current_mode_info());
+    info!("Framebuffer: {:p}", gop.frame_buffer().as_mut_ptr());
 
     return GopData {
         framebuffer_pointer: gop.frame_buffer().as_mut_ptr(),
